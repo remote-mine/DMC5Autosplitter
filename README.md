@@ -4,8 +4,10 @@
 
 ## Features
 
+- Automatically start the timer when selecting Mission Start on Prologue or Mission 01
 - Automatically pause timer during loading screens (Game Time timing method)
 - Automatically split post-mission during the glass crack
+- Automatically split on defeating Mission 20 boss
 
 ## Livesplit Configuration
 
@@ -19,13 +21,14 @@
 Example Livesplit Layout: [dmc5_ll_splits.lsl](dmc5_ll_splits.lsl)
 
 ## TO-DO
-- Automatically start the timer when selecting Mission Start on Prologue or Mission 01
-- Automatically split when boss HP bar hits zero during Mission 20
+
 - Automatically split for sealed fights
 - Detect loading for in-mission cutscenes
 
 ## Known Issues
-- Beginning of some missions is treated as loading until the HUD is displayed
+
+- Inconsistent auto-start behavior
+- Checkpoint/Retry/Quit Mission loading timer pause is delayed
 
 ## Contact
 
