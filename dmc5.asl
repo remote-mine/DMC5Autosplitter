@@ -1,6 +1,6 @@
 /*
     Devil May Cry 5 Autosplitter and Loadless Timer
-    Version: 0.2
+    Version: 0.3b
     Author: remote_mine
     Compatible Versions: Steam
 
@@ -9,17 +9,25 @@
 
 state("DevilMayCry5", "1.07")
 {
-    byte missionNumber : 0x07A9A2E0, 0x88;
-    byte gameState : 0x07B53A58, 0x8;
-
-    int playerLoaded : 0x07A6E5C8, 0x140, 0x1F8, 0x200, 0x80, 0x20;
-
-    int finalBossPointer : 0x07A72E58, 0x140, 0x250, 0x28, 0x88;
+    byte missionNum   : 0x07A9A2E0, 0x88;
+    byte gameState    : 0x07B53A58, 0x8;
+    int playerPtr     : 0x07A6E5C8, 0x140, 0x1F8, 0x218, 0x40, 0x20;
+    int finalBossPtr  : 0x07A72E58, 0x140, 0x250, 0x28, 0x88;
     float finalBossHP : 0x07A72E58, 0x140, 0x250, 0x28, 0x88, 0x10;
 }
 
 startup
 {
+    // Log Output switch for DebugView (enables/disables debug messages)
+    bool DebugEnabled = true;
+    Action<string> DebugOutput = (text) => {
+        if (DebugEnabled)
+        {
+            print("LiveSplit Debug " + text);
+        }
+    };
+    vars.DebugOutput = DebugOutput;
+
     vars.isLoading = false;
     vars.gameWasPaused = false;
 }
@@ -44,30 +52,38 @@ init
     }
 }
 
+/*
+    gameState (generally correct, does not cover all cases)
+    0  = loading
+    9  = pause menu screen + character select confirmation
+    13 = during character select (M07 and M13)
+    24 = when displaying date in cutscene before mission
+    31 = customization
+*/
 update
 {
-    /*
-        gameState is 0 for most loading (plus a few edge cases)
-        gameState is 9 for pause menu screen
-
-        This fixes in-mission intro "loading" (gameState is 0 until HUD shows)
-        Special case to check for pause menu during pre-HUD "loading"
-    */
     if (current.gameState != old.gameState)
     {
         vars.gameWasPaused = old.gameState == 9;
-        vars.isLoading = (current.gameState == 0 && !vars.gameWasPaused);
+        /*
+            fix unpause during mission start "loading" (until HUD displays)
+            gameState seq: 0 ("loading") -> 9 (pause) -> 0 ("loading")
+
+            fix M07/M13 character select load screen not pausing timer
+        */
+        vars.isLoading = current.gameState == 0 && (!vars.gameWasPaused || current.playerPtr == 0);
     }
 
-    if (current.playerLoaded != old.playerLoaded)
+    if (current.playerPtr != old.playerPtr)
     {
-        if (current.playerLoaded > 0)
+        // ignore M06 as player data is loaded early
+        if (current.playerPtr > 0 && current.missionNum != 6)
         {
             vars.isLoading = false;
         }
         else if (current.gameState == 0 && vars.gameWasPaused)
         {
-            // load screen after pausing (checkpoint/retry/quit mission)
+            // real loading after pausing (checkpoint/retry/quit mission)
             vars.isLoading = true;
         }
     }
@@ -75,22 +91,22 @@ update
 
 start
 {
-    if (current.missionNumber == 0 || current.missionNumber == 1)
+    if (current.missionNum == 0 || current.missionNum == 1)
     {
-        return current.playerLoaded != old.playerLoaded && current.playerLoaded > 0;
+        return current.playerPtr != old.playerPtr && current.playerPtr > 0;
     }
 }
 
 split
 {
-    if (current.missionNumber == 20 && current.finalBossPointer > 0 && old.finalBossHP > 0)
+    if (current.missionNum == 20 && current.finalBossPtr > 0 && old.finalBossHP > 0)
     {
         return current.finalBossHP == 0;
     }
 
-    if (current.missionNumber != old.missionNumber)
+    if (current.missionNum != old.missionNum)
     {
-        return current.missionNumber == old.missionNumber + 1;
+        return current.missionNum == old.missionNum + 1;
     }
 }
 

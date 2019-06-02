@@ -27,8 +27,7 @@ Example Livesplit Layout: [dmc5_ll_splits.lsl](dmc5_ll_splits.lsl)
 
 ## Known Issues
 
-- Inconsistent auto-start behavior
-- Checkpoint/Retry/Quit Mission loading timer pause is delayed
+- Some cutscenes at the beginning of a few missions are not treated as loading
 
 ## Contact
 
