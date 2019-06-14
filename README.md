@@ -28,6 +28,7 @@ Example Livesplit Layout: [dmc5_ll_splits.lsl](dmc5_ll_splits.lsl)
 ## Known Issues
 
 - Some cutscenes at the beginning of a few missions are not treated as loading
+- Only supports v1.08
 
 ## Contact
 
