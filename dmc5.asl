@@ -1,10 +1,10 @@
 /*
     Devil May Cry 5 Autosplitter and Loadless Timer
-    Version: 0.5a
+    Version: 0.5b
     Author: remote_mine
     Compatible Versions: Steam
 
-    Thanks to Tektheist for ideas and help with testing!
+    Thanks to Tektheist and Cosmic for ideas and help with testing!
 */
 
 state("DevilMayCry5", "1.08")
@@ -41,6 +41,7 @@ startup
 
     vars.isLoading = false;
     vars.gameWasPaused = false;
+    vars.inMissionPauseMenu = false;
     vars.playerLoadedCurrent = false;
     vars.playerLoadedOld = false;
 }
@@ -80,7 +81,20 @@ init
     9  = pause menu screen + character select confirmation
     13 = during character select (M07 and M13)
     24 = when displaying date in cutscene before mission
-    31 = customization
+    27 = customization (v)
+    31 = customization (nero)
+
+    in-mission pause menu values
+    15 = pause menu - skill list
+    20 = pause menu - tutorial
+    33 = pause menu - language
+    35 = pause menu - controls keyboard/mouse
+    39 = pause menu - sound
+    40 = pause menu - pc options
+    45 = pause menu - controls (v)
+    46 = pause menu - controls (nero)
+    49 = pause menu - controls (dante)
+    50 = pause menu - game options
 */
 update
 {
@@ -89,6 +103,22 @@ update
 
     if (current.gameState != old.gameState)
     {
+        // player pausing (gameState 9) is also loadless but only when in-mission
+        vars.inMissionPauseMenu = vars.playerLoadedCurrent &&
+            (
+                current.gameState == 9  ||
+                current.gameState == 15 ||
+                current.gameState == 20 ||
+                current.gameState == 33 ||
+                current.gameState == 35 ||
+                current.gameState == 39 ||
+                current.gameState == 40 ||
+                current.gameState == 45 ||
+                current.gameState == 46 ||
+                current.gameState == 49 ||
+                current.gameState == 50
+            );
+
         vars.gameWasPaused = old.gameState == 9;
         /*
             fix unpause during mission start "loading" (until HUD displays)
@@ -96,7 +126,8 @@ update
 
             fix M07/M13 character select load screen not pausing timer
         */
-        vars.isLoading = current.gameState == 0 && (!vars.gameWasPaused || !vars.playerLoadedCurrent);
+
+        vars.isLoading = current.gameState == 0 && (!vars.gameWasPaused || !vars.playerLoadedCurrent) || vars.inMissionPauseMenu;
     }
 
     if (vars.playerLoadedCurrent != vars.playerLoadedOld)
