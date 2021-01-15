@@ -27,6 +27,16 @@ state("DevilMayCry5", "1.09") // denuvoless
     float finalBossHP : 0x07A74330, 0x140, 0x250, 0x28, 0x88, 0x10;
 }
 
+state("DevilMayCry5", "1.10") // vergil dlc
+{
+    byte missionNum   : 0x07E5B2E8, 0x98;
+    byte gameState    : 0x07F3DDB8, 0x8; // DevilMayCry5.exe+27B5D82
+    long playerPtr    : 0x07E625D0;
+    float playerHP    : 0x07E625D0, 0x7C;
+    long finalBossPtr : 0x07E55C28, 0x148, 0x250, 0x18, 0x88; // DevilMayCry5.exe+1259E65
+    float finalBossHP : 0x07E55C28, 0x148, 0x250, 0x18, 0x88, 0x10; // DevilMayCry5.exe+1259E65
+}
+
 startup
 {
     // Log Output switch for DebugView (enables/disables debug messages)
@@ -48,6 +58,7 @@ startup
 init
 {
     var module = modules.First();
+
     switch (module.ModuleMemorySize)
     {
         case 502349824:
@@ -59,15 +70,18 @@ init
         case 135524352:
             version = "1.09";
             break;
+        case 139784192:
+            version = "1.10";
+            break;
         default:
             vars.DebugOutput("unknown version, module size " + module.ModuleMemorySize.ToString());
             break;
     }
 
-    if (version != "1.08" && version != "1.09")
+    if (version != "1.08" && version != "1.09" && version != "1.10")
     {
         MessageBox.Show(timer.Form,
-            "Warning: Could not determine DMC5 version.\nOnly Steam version 1.08 or 1.09 is currently supported",
+            "Warning: Could not determine DMC5 version.\nOnly Steam version 1.08, 1.09 and 1.10 is currently supported",
             "LiveSplit: Unknown Game Version",
             MessageBoxButtons.OK,
             MessageBoxIcon.Warning);
