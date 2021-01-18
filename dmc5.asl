@@ -35,6 +35,8 @@ state("DevilMayCry5", "1.10") // vergil dlc
     float playerHP    : 0x07E625D0, 0x7C;
     long finalBossPtr : 0x07E55C28, 0x148, 0x250, 0x18, 0x88; // DevilMayCry5.exe+1259E65
     float finalBossHP : 0x07E55C28, 0x148, 0x250, 0x18, 0x88, 0x10; // DevilMayCry5.exe+1259E65
+    long danteBossPtr : 0x07E55C28, 0x148, 0x300, 0x20, 0x88;
+    float danteBossHP : 0x07E55C28, 0x148, 0x300, 0x20, 0x88, 0x10;
 }
 
 startup
@@ -138,9 +140,19 @@ start
 
 split
 {
-    if (current.missionNum == 20 && current.finalBossPtr > 0 && old.finalBossHP > 0)
+    if (current.missionNum == 20)
     {
-        return current.finalBossHP == 0;
+        // vergil m20 has a different boss pointer
+        if (version == "1.10" && current.danteBossPtr > 0 && old.danteBossHP > 0)
+        {
+            return current.danteBossHP == 0;
+        }
+
+        // nero m20 boss
+        if (current.finalBossPtr > 0 && old.finalBossHP > 0)
+        {
+            return current.finalBossHP == 0;
+        }
     }
 
     if (current.missionNum != old.missionNum)
