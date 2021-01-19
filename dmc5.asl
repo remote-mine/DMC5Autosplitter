@@ -93,6 +93,7 @@ init
 /*
     gameState (generally correct, does not cover all cases)
     0  = loading
+    2  = vergil weapon swap (increments gameState by 2 then decrements 2 when weapon HUD fades)
     9  = pause menu screen + character select confirmation
     13 = during character select (M07 and M13)
     24 = when displaying date in cutscene before mission
@@ -105,10 +106,11 @@ update
 
     if (current.gameState != old.gameState)
     {
-        vars.gameWasPaused = old.gameState == 9;
+        vars.gameWasPaused = old.gameState == 9 || old.gameState == 2;
         /*
             fix unpause during mission start "loading" (until HUD displays)
             gameState seq: 0 ("loading") -> 9 (pause) -> 0 ("loading")
+            fix vergil weapon swap during "loading" (until full HUD displays)
 
             fix M07/M13 character select load screen not pausing timer
         */
