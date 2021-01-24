@@ -1,10 +1,10 @@
 /*
     Devil May Cry 5 Autosplitter and Loadless Timer
-    Version: 0.5a
+    Version: 0.6a
     Author: remote_mine
     Compatible Versions: Steam
 
-    Thanks to Tektheist for ideas and help with testing!
+    Thanks to the DMC5 community for help with testing!
 */
 
 state("DevilMayCry5", "1.08")
@@ -31,9 +31,11 @@ state("DevilMayCry5", "1.10") // vergil dlc
 {
     byte missionNum   : 0x07E5B2E8, 0x98;
     byte gameState    : 0x07F3DDB8, 0x8; // DevilMayCry5.exe+27B5D82
-    long playerPtr    : 0x07E625D0;
-    float playerHP    : 0x07E625D0, 0x7C;
-    long finalBossPtr : 0x07E55C28, 0x148, 0x250, 0x18, 0x88; // DevilMayCry5.exe+1259E65
+    long playerPtr    : 0x07E571A0, 0x60, 0x1F8, 0x260, 0x10, 0x20;
+    float playerHP    : 0x07E571A0, 0x60, 0x1F8, 0x260, 0x10, 0x20, 0x18;
+    long playerVgPtr  : 0x07E571A0, 0x60, 0x300, 0x20, 0x88;
+    long playerVgHP   : 0x07E571A0, 0x60, 0x300, 0x20, 0x88, 0x18;
+    long finalBossPtr : 0x07E55C28, 0x148, 0x250, 0x18, 0x88;
     float finalBossHP : 0x07E55C28, 0x148, 0x250, 0x18, 0x88, 0x10; // DevilMayCry5.exe+1259E65
     long danteBossPtr : 0x07E55C28, 0x148, 0x300, 0x20, 0x88;
     float danteBossHP : 0x07E55C28, 0x148, 0x300, 0x20, 0x88, 0x10;
@@ -83,7 +85,8 @@ init
     if (version != "1.08" && version != "1.09" && version != "1.10")
     {
         MessageBox.Show(timer.Form,
-            "Warning: Could not determine DMC5 version.\nOnly Steam version 1.08, 1.09 and 1.10 is currently supported",
+            "Warning: Could not determine DMC5 version.\n" +
+                "Only Steam versions 1.08, 1.09 and 1.10 are currently supported",
             "LiveSplit: Unknown Game Version",
             MessageBoxButtons.OK,
             MessageBoxIcon.Warning);
@@ -102,7 +105,16 @@ init
 update
 {
     vars.playerLoadedOld = vars.playerLoadedCurrent;
-    vars.playerLoadedCurrent = current.playerPtr > 0 && current.playerHP != -1000;
+
+    // hacky solution since vergil player HP is stored in different spot from dante/nero/v
+    if (current.playerPtr > 0)
+    {
+        vars.playerLoadedCurrent = current.playerHP >= 0;
+    }
+    else if (version == "1.10")
+    {
+        vars.playerLoadedCurrent = current.playerVgPtr > 0 && current.playerVgHP >= 0;
+    }
 
     if (current.gameState != old.gameState)
     {
@@ -119,8 +131,8 @@ update
 
     if (vars.playerLoadedCurrent != vars.playerLoadedOld)
     {
-        // ignore M06 as player data is loaded early
-        if (vars.playerLoadedCurrent && current.missionNum != 6)
+        // ignore M06 and M20 as player data is loaded early
+        if (vars.playerLoadedCurrent && current.missionNum != 6 && current.missionNum != 20)
         {
             vars.isLoading = false;
         }
