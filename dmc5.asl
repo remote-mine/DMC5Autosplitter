@@ -109,11 +109,11 @@ update
     // hacky solution since vergil player HP is stored in different spot from dante/nero/v
     if (current.playerPtr > 0)
     {
-        vars.playerLoadedCurrent = current.playerHP >= 0;
+        vars.playerLoadedCurrent = current.playerHP >= 0 && current.playerHP <= 20000;
     }
     else if (version == "1.10")
     {
-        vars.playerLoadedCurrent = current.playerVgPtr > 0 && current.playerVgHP >= 0;
+        vars.playerLoadedCurrent = current.playerVgPtr > 0 && current.playerVgHP >= 0 && current.playerVgHP <= 20000;
     }
 
     if (current.gameState != old.gameState)
