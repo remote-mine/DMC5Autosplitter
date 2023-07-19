@@ -21,10 +21,20 @@ state("DevilMayCry5", "1.09") // denuvoless
 {
     byte missionNum   : 0x07A9B7D8, 0x88;
     byte gameState    : 0x07B54F38, 0x8;
-    long playerPtr    : 0x07A6FAA8, 0x140, 0x1F8, 0x218, 0x40, 0x20;
-    float playerHP    : 0x07A6FAA8, 0x140, 0x1F8, 0x218, 0x40, 0x20, 0x18;
+    long playerPtr    : 0x07A6FAA8, 0x140, 0x1F8, 0x218, 0x40, 0x20; //E 5490
+    float playerHP    : 0x07A6FAA8, 0x140, 0x1F8, 0x218, 0x40, 0x20, 0x18; //10 a9 ? ? ? ? 00 c0 7d
     long finalBossPtr : 0x07A74330, 0x140, 0x250, 0x28, 0x88;
-    float finalBossHP : 0x07A74330, 0x140, 0x250, 0x28, 0x88, 0x10;
+    float finalBossHP : 0x07A74330, 0x140, 0x250, 0x28, 0x88, 0x10; //69 c4 ? ? ? ? 3e 30 2f
+}
+
+state("DevilMayCry5", "1.10")
+{
+    byte missionNum   : 0x07E661B0, 0x80;
+    byte gameState    : 0x07F482D8, 0x8;
+    long playerPtr    : 0x07E6A878, 0x140, 0x1F8, 0x218, 0x40, 0x20;
+    float playerHP    : 0x07E6A878, 0x140, 0x1F8, 0x218, 0x40, 0x20, 0x18;
+    long finalBossPtr : 0x07E60168, 0x148, 0x250, 0x28, 0x88;
+    float finalBossHP : 0x07E60168, 0x148, 0x250, 0x28, 0x88, 0x10;
 }
 
 startup
@@ -59,12 +69,15 @@ init
         case 135524352:
             version = "1.09";
             break;
+        case 140038144:
+            version = "1.10";
+            break;
         default:
             vars.DebugOutput("unknown version, module size " + module.ModuleMemorySize.ToString());
             break;
     }
 
-    if (version != "1.08" && version != "1.09")
+    if (version != "1.08" && version != "1.09" && version != "1.10")
     {
         MessageBox.Show(timer.Form,
             "Warning: Could not determine DMC5 version.\nOnly Steam version 1.08 or 1.09 is currently supported",
